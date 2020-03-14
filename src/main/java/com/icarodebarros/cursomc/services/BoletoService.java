@@ -1,4 +1,4 @@
-package com.icarodebarros.cursomc.resources;
+package com.icarodebarros.cursomc.services;
 
 import java.util.Calendar;
 import java.util.Date;

@@ -18,7 +18,6 @@ import com.icarodebarros.cursomc.domain.enums.EstadoPagamento;
 import com.icarodebarros.cursomc.repositories.ItemPedidoRepository;
 import com.icarodebarros.cursomc.repositories.PagamentoRepository;
 import com.icarodebarros.cursomc.repositories.PedidoRepository;
-import com.icarodebarros.cursomc.resources.BoletoService;
 import com.icarodebarros.cursomc.security.UserSS;
 import com.icarodebarros.cursomc.services.exceptions.AuthorizationException;
 import com.icarodebarros.cursomc.services.exceptions.ObjectNotFoundException;
