@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.icarodebarros.cursomc</groupId>
-	<artifactId>cursomc</artifactId>
+	<artifactId>spring-boot</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>cursomc</name>
+	<name>spring-boot</name>
 	<description>Estudo de caso Java para curso de Modelagem Conceitual</description>
 
 	<properties>
