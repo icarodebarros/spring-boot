@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
 
@@ -14,11 +11,7 @@ import javax.persistence.ManyToMany;
 public class Categoria extends Pojo<Integer> {
 	
 	private static final long serialVersionUID = 1L;
-	
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Integer id;
-	
+		
 	private String nome;
 	
 //	@JsonManagedReference
@@ -30,17 +23,8 @@ public class Categoria extends Pojo<Integer> {
 	}
 	
 	public Categoria(Integer id, String nome) {
-		super();
-		this.id = id;
+		super(id);
 		this.nome = nome;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public String getNome() {

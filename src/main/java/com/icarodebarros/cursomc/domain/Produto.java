@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -20,10 +17,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Produto extends Pojo<Integer> {
 	
 	private static final long serialVersionUID = 1L;
-	
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Integer id;
 	
 	private String nome;
 	private Double preco;
@@ -45,8 +38,7 @@ public class Produto extends Pojo<Integer> {
 	}
 
 	public Produto(Integer id, String nome, Double preco) {
-		super();
-		this.id = id;
+		super(id);
 		this.nome = nome;
 		this.preco = preco;
 	}
@@ -58,14 +50,6 @@ public class Produto extends Pojo<Integer> {
 			lista.add(ip.getPedido());
 		}
 		return lista;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public String getNome() {

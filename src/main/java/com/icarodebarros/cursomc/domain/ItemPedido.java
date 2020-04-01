@@ -55,14 +55,6 @@ public class ItemPedido extends Pojo<ItemPedidoPK> {
 		this.id.setProduto(produto);
 	}
 
-	public ItemPedidoPK getId() {
-		return id;
-	}
-
-	public void setId(ItemPedidoPK id) {
-		this.id = id;
-	}
-
 	public Double getDesconto() {
 		return desconto;
 	}

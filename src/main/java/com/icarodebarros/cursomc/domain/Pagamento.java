@@ -1,7 +1,6 @@
 package com.icarodebarros.cursomc.domain;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
@@ -18,10 +17,7 @@ import com.icarodebarros.cursomc.domain.enums.EstadoPagamento;
 public abstract class Pagamento extends Pojo<Integer> {
 	
 	private static final long serialVersionUID = 1L;
-	
-	@Id
-	private Integer id;
-	
+		
 	private Integer estado;
 	
 	@JsonIgnore // @JsonBackReference
@@ -35,18 +31,9 @@ public abstract class Pagamento extends Pojo<Integer> {
 	}
 
 	public Pagamento(Integer id, EstadoPagamento estado, Pedido pedido) {
-		super();
-		this.id = id;
+		super(id);
 		this.estado = estado == null ? null : estado.getCod();
 		this.pedido = pedido;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public EstadoPagamento getEstado() {

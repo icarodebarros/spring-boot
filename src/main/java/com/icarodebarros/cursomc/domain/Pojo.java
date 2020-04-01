@@ -2,12 +2,19 @@ package com.icarodebarros.cursomc.domain;
 
 import java.io.Serializable;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
 public abstract class Pojo<T extends Serializable> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private T id;
 	
 //	@Version
 //	private Long versao;
@@ -27,20 +34,29 @@ public abstract class Pojo<T extends Serializable> implements Serializable {
 	public Pojo() {
 		super();
 	}
+	
+	public Pojo(T id) {
+		super();
+		this.setId(id);
+	}
 
 	/**
 	 * Retorna o ID do objeto
 	 * 
 	 * @return ID do objeto
 	 */
-	public abstract T getId();
+	public T getId() {
+		return this.id;
+	}
 	
 	/**
 	 * Define o novo valor para o ID
 	 * 
 	 * @param id Novo valor de ID
 	 */
-	public abstract void setId(final T id);
+	public void setId(final T id) {
+		this.id = id;
+	}
 	
 	
 	/**

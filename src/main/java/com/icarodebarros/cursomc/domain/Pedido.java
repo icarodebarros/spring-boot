@@ -9,9 +9,6 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -23,11 +20,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class Pedido extends Pojo<Integer> {
 	
 	private static final long serialVersionUID = 1L;
-	
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Integer id;
-	
+		
 	@JsonFormat(pattern="dd/MM/yyyy HH:mm")
 	private Date instante;
 	
@@ -52,8 +45,7 @@ public class Pedido extends Pojo<Integer> {
 	}
 
 	public Pedido(Integer id, Date instante, Cliente cliente, Endereco enderecoDeEntrega) {
-		super();
-		this.id = id;
+		super(id);
 		this.instante = instante;
 		this.cliente = cliente;
 		this.enderecoDeEntrega = enderecoDeEntrega;
@@ -67,14 +59,6 @@ public class Pedido extends Pojo<Integer> {
 		return soma;
 	}
 	
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
 	public Date getInstante() {
 		return instante;
 	}

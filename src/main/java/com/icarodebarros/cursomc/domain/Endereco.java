@@ -1,9 +1,6 @@
 package com.icarodebarros.cursomc.domain;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
@@ -13,11 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Endereco extends Pojo<Integer> {
 	
 	private static final long serialVersionUID = 1L;
-	
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Integer id;
-	
+		
 	private String logradouro;
 	private String numero;
 	private String complemento;
@@ -39,8 +32,7 @@ public class Endereco extends Pojo<Integer> {
 
 	public Endereco(Integer id, String logradouro, String numero, String complemento, String bairro, String cep,
 			Cliente cliente, Cidade cidade) {
-		super();
-		this.id = id;
+		super(id);
 		this.logradouro = logradouro;
 		this.numero = numero;
 		this.complemento = complemento;
@@ -48,14 +40,6 @@ public class Endereco extends Pojo<Integer> {
 		this.cep = cep;
 		this.cliente = cliente;
 		this.setCidade(cidade);
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public String getLogradouro() {
