@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.icarodebarros.cursomc.services.exceptions.FileException;
 
 @Service
-public class imageService {
+public class ImageService {
 
 	public BufferedImage getJpgImageFromFile(MultipartFile uploadedFile) {
 		String ext = FilenameUtils.getExtension(uploadedFile.getOriginalFilename());

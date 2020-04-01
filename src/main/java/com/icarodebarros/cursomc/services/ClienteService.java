@@ -46,7 +46,7 @@ public class ClienteService {
 	private S3Service s3Service;
 	
 	@Autowired
-	private imageService imageService;
+	private ImageService imageService;
 	
 	@Value("${img.prefix.client.profile}")
 	private String prefix;
