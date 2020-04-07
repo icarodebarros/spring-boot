@@ -1,14 +1,12 @@
 package com.icarodebarros.cursomc.services;
 
 import java.util.Date;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.icarodebarros.cursomc.domain.Cliente;
 import com.icarodebarros.cursomc.domain.ItemPedido;
@@ -20,14 +18,10 @@ import com.icarodebarros.cursomc.repositories.PagamentoRepository;
 import com.icarodebarros.cursomc.repositories.PedidoRepository;
 import com.icarodebarros.cursomc.security.UserSS;
 import com.icarodebarros.cursomc.services.exceptions.AuthorizationException;
-import com.icarodebarros.cursomc.services.exceptions.ObjectNotFoundException;
 
 @Service
-public class PedidoService {
-	
-	@Autowired
-	private PedidoRepository repo;
-	
+public class PedidoService extends GenericService<Pedido, Integer> {
+		
 	@Autowired
 	private BoletoService boletoService;
 	
@@ -46,25 +40,27 @@ public class PedidoService {
 	@Autowired
 	private EmailService emailService;
 	
-	public Pedido find(Integer id) {
-		Optional<Pedido> obj = repo.findById(id);
-		
-		return obj.orElseThrow(() -> new ObjectNotFoundException(
-				"Objeto não encontrado! Id: " + id + ", Tipo: " + Pedido.class.getName()));
+	@Override
+	public PedidoRepository getRepository() {
+		return (PedidoRepository) super.getRepository();
 	}
 	
-	@Transactional
-	public Pedido insert(Pedido obj) {
-		obj.setId(null);
-		obj.setInstante(new Date());
-		obj.setCliente(clienteService.find(obj.getCliente().getId()));
-		obj.getPagamento().setEstado(EstadoPagamento.PENDENTE);
-		obj.getPagamento().setPedido(obj);
-		if (obj.getPagamento() instanceof PagamentoComBoleto) {
-			PagamentoComBoleto pagto = (PagamentoComBoleto) obj.getPagamento();
-			boletoService.peencherPagamentoComBoleto(pagto, obj.getInstante());
+	@Override
+	protected void preDependencies(Pedido obj) {
+		if (obj.getId() == null) {
+			obj.setInstante(new Date());
+			obj.setCliente(clienteService.find(obj.getCliente().getId()));
+			obj.getPagamento().setEstado(EstadoPagamento.PENDENTE);
+			obj.getPagamento().setPedido(obj);
+			if (obj.getPagamento() instanceof PagamentoComBoleto) {
+				PagamentoComBoleto pagto = (PagamentoComBoleto) obj.getPagamento();
+				boletoService.peencherPagamentoComBoleto(pagto, obj.getInstante());
+			}			
 		}
-		obj = repo.save(obj);
+	}
+	
+	@Override
+	protected void postDependencies(Pedido obj) {
 		pagamentoRepository.save(obj.getPagamento());
 		for (ItemPedido ip: obj.getItens()) {
 			ip.setDesconto(0.0);
@@ -75,10 +71,9 @@ public class PedidoService {
 		itemPedidoRepository.saveAll(obj.getItens());
 		//emailService.sendOderConfirmationEmail(obj);
 		emailService.sendOrderConfirmationHtmlEmail(obj);
-		
-		return obj;
 	}
 	
+	@Override
 	public Page<Pedido> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
 		UserSS user = UserService.authenticated();
 		if (user == null) {
@@ -87,7 +82,7 @@ public class PedidoService {
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		Cliente cliente = clienteService.find(user.getId());
 		
-		return repo.findByCliente(cliente, pageRequest);
+		return getRepository().findByCliente(cliente, pageRequest);
 	}
 
 }

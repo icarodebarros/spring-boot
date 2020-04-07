@@ -2,18 +2,11 @@ package com.icarodebarros.cursomc.services;
 
 import java.awt.image.BufferedImage;
 import java.net.URI;
-import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.icarodebarros.cursomc.domain.Cidade;
@@ -27,15 +20,11 @@ import com.icarodebarros.cursomc.repositories.ClienteRepository;
 import com.icarodebarros.cursomc.repositories.EnderecoRepository;
 import com.icarodebarros.cursomc.security.UserSS;
 import com.icarodebarros.cursomc.services.exceptions.AuthorizationException;
-import com.icarodebarros.cursomc.services.exceptions.DataIntegrityException;
 import com.icarodebarros.cursomc.services.exceptions.ObjectNotFoundException;
 
 @Service
-public class ClienteService {
-	
-	@Autowired
-	private ClienteRepository repo;
-	
+public class ClienteService extends GenericService<Cliente, Integer> {
+		
 	@Autowired
 	private EnderecoRepository enderecoRepository;
 	
@@ -54,44 +43,30 @@ public class ClienteService {
 	@Value("${img.profile.size}")
 	private Integer size;
 	
+	@Override
+	public ClienteRepository getRepository() {
+		return (ClienteRepository) super.getRepository();
+	}
+	
+	@Override
 	public Cliente find(Integer id) {
-		
 		UserSS user = UserService.authenticated();
 		if (user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
 			throw new AuthorizationException("Acesso Negado");
 		}
 		
-		Optional<Cliente> obj = repo.findById(id);
+		return super.find(id);
+	}
 		
-		return obj.orElseThrow(() -> new ObjectNotFoundException(
-				"Objeto não encontrado! Id: " + id + ", Tipo: " + Cliente.class.getName()));
-	}
-	
-	@Transactional // Anotação para garantir que tanto o Cliente como seus endereços são salvos na mesma transação
-	public Cliente insert(Cliente obj) {
-		obj.setId(null);
-		obj = repo.save(obj);
+	@Override
+	protected void postDependencies(Cliente obj) {
+		super.postDependencies(obj);
 		enderecoRepository.saveAll(obj.getEnderecos());
-		return obj;
 	}
 	
-	public Cliente update(Cliente obj) {
-		Cliente newObj = find(obj.getId());
-		updateData(newObj, obj);
-		return repo.save(newObj);
-	}
-	
-	public void delete(Integer id) {
-		find(id);
-		try {
-			repo.deleteById(id);			
-		} catch(DataIntegrityViolationException e) {
-			throw new DataIntegrityException("Não é possível excluir porque há pedidos relacionados");
-		}
-	}
-	
-	public List<Cliente> findAll() {
-		return repo.findAll();
+	@Override
+	protected String getMessageDataIntegrityViolation() {
+		return "Não é possível excluir porque há pedidos relacionados";
 	}
 	
 	public Cliente findByEmail(String email) {
@@ -99,16 +74,11 @@ public class ClienteService {
 		if (user == null || !user.hasRole(Perfil.ADMIN) && !email.equals(user.getUsername())) {
 			throw new AuthorizationException("Acesso Negado");
 		}
-		Cliente obj = repo.findByEmail(email);
+		Cliente obj = getRepository().findByEmail(email);
 		if (obj == null) {
 			throw new ObjectNotFoundException("Objeto não encontrado! Id: " + user.getId() + ", Tipo: " + Cliente.class.getName());
 		}
 		return obj;
-	}
-	
-	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
-		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
-		return repo.findAll(pageRequest);
 	}
 	
 	public Cliente fromDTO(ClienteDTO objDto) {
@@ -132,9 +102,11 @@ public class ClienteService {
 		return cli;
 	}
 
-	private void updateData(Cliente newObj, Cliente obj) {
-		newObj.setNome(obj.getNome());
-		newObj.setEmail(obj.getEmail());
+	@Override
+	protected Cliente updateData(Cliente objDB, Cliente obj) {
+		objDB.setNome(obj.getNome());
+		objDB.setEmail(obj.getEmail());
+		return objDB;
 	}
 	
 	public URI uploadProfilePicture(MultipartFile multipartFile) {
