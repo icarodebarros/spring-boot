@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -39,11 +40,11 @@ public abstract class GenericService<T extends Pojo<ID>, ID extends Serializable
 	
 	/**
 	 * Método que busca objeto por Id. Lança ObjectNotFoundException caso não encontre.
-	 * @param id do objeto
-	 * @return objeto encontrado (class.T)
+	 * @param id Id do objeto
+	 * @return Objeto encontrado (class.T)
 	 */
 	public T find(ID id) {
-		Optional<T> obj = this.repository.findById(id);
+		Optional<T> obj = this.getRepository().findById(id);
 		
 		return obj.orElseThrow(() -> new ObjectNotFoundException(
 				"Objeto não encontrado! Id: " + id + ", Tipo: " + this.entityClass.getName()));
@@ -59,7 +60,7 @@ public abstract class GenericService<T extends Pojo<ID>, ID extends Serializable
 		obj.setId(null);
 		this.validateInsert(obj);
 		this.preDependencies(obj);
-		obj = repository.save(obj);
+		obj = getRepository().save(obj);
 		this.postDependencies(obj);
 		return obj;
 	}
@@ -75,14 +76,14 @@ public abstract class GenericService<T extends Pojo<ID>, ID extends Serializable
 		objDB = this.updateData(objDB, obj);
 		this.validateUpdate(obj);
 		this.preDependencies(objDB);
-		objDB = repository.save(objDB);
+		objDB = getRepository().save(objDB);
 		this.postDependencies(objDB);
 		return objDB;
 	}
 	
 	/**
 	 * Método de deleçao de objeto. Lança DataIntegrityException caso existam objetos relacionados.
-	 * @param id do objeto a ser apagado
+	 * @param id Id do objeto a ser apagado
 	 */
 	@Transactional
 	public void delete(ID id) {
@@ -90,7 +91,7 @@ public abstract class GenericService<T extends Pojo<ID>, ID extends Serializable
 		this.validateDelete(obj);
 		this.deleteDependencies(obj);
 		try {
-			this.repository.deleteById(id);			
+			this.getRepository().deleteById(id);			
 		} catch(DataIntegrityViolationException e) {
 			String msg = this.getMessageDataIntegrityViolation() != null ? this.getMessageDataIntegrityViolation() : e.getMessage();
 			throw new DataIntegrityException(msg);
@@ -98,31 +99,84 @@ public abstract class GenericService<T extends Pojo<ID>, ID extends Serializable
 	}
 	
 	/**
-	 * Método que busca todos os objetos da Classe.
-	 * @return todas as instâncias da classe
+	 * Método que busca todos os objetos completos da Classe.
+	 * @return Todas as instâncias da classe
 	 */
 	public List<T> findAll() {
-		return this.repository.findAll();
+		return this.getRepository().findAll();
 	}
 	
 	/**
-	 * Método para listar objetos paginados.
+	 * Método para listar objetos completos paginados.
 	 * @param page Número da página que se deseja
 	 * @param linesPerPage Número de objetos por página
 	 * @param orderBy Campo pelo qual se deseja ordenar a busca
 	 * @param direction Ordenação da busca (crescente ou decrescente)
-	 * @return lista de itens limitada pela paginação
+	 * @return Lista de itens limitada pela paginação
 	 */
 	public Page<T> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
-		return this.repository.findAll(pageRequest);
+		return this.getRepository().findAll(pageRequest);
+	}
+	
+	/**
+	 * Método semelhante ao findAll() mas que retorna informações resumidas.
+	 * Depende da implementação dos métodos repositoryShortFindAll() e mapObjectToCategoria(obj).
+	 * @return Todas as instâncias resumidas da classe
+	 */
+	public List<T> shortFindAll() {
+		List<Object[]> rawResult = this.repositoryShortFindAll();
+		if (rawResult == null) {
+			throw new NullPointerException("Necessária a implementação do método repositoryShortFindAll() no Service!");
+		}
+		List<T> objects = rawResult.stream().map(obj -> this.mapObjectToCategoria(obj)).collect(Collectors.toList());		
+		return objects;
+	}
+	
+	/**
+	 * Método semelhante ao findPage(...) mas que retorna informações resumidas.
+	 * Depende da implementação dos métodos repositoryShortFindAll(pageRequest) e mapObjectToCategoria(obj).
+	 * @return Todas as instâncias resumidas da classe
+	 */
+	public Page<T> shortFindPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);	
+		Page<Object[]> rawResult = this.repositoryShortFindAll(pageRequest);
+		if (rawResult == null) {
+			throw new NullPointerException("Necessária a implementação do método repositoryShortFindAll(PageRequest pageRequest) no Service!");
+		}
+		Page<T> objects = rawResult.map(obj -> this.mapObjectToCategoria(obj));		
+		return objects;
+	}
+	
+	/**
+	 * Método auxiliar que deve ser sobrescrito sempre que for necessário usar o shortFindAll() do Service.
+	 * @return Deve retorna a chamada do Repositório sobre a função customizada do shortFindAll().
+	 */
+	protected List<Object[]> repositoryShortFindAll() {
+		return null;
+	}
+	
+	/**
+	 * Método auxiliar que deve ser sobrescrito sempre que for necessário usar o shortFindPage(...) do Service.
+	 * @return Deve retorna a chamada do Repositório sobre a função customizada do shortFindAll(Pageable pageRequest).
+	 */
+	protected Page<Object[]> repositoryShortFindAll(PageRequest pageRequest) {
+		return null;
+	}
+	
+	/**
+	 * Método auxiliar que deve ser sobrescrito sempre que for necessário usar o shortFindAll() ou o shortFindPage(...) do Service.
+	 * @return Deve retorna o objeto da Classe T criado a partir dos resultados das querys SQL de busca resumida.
+	 */	
+	protected T mapObjectToCategoria(Object[] obj) {
+		return null;
 	}
 	
 	/**
 	 * Método auxiliar do Update(obj) para definir quais atributos do objeto serão atualizados.  
 	 * @param objDB Objeto a ser atualizado e salvo
 	 * @param obj Objeto vindo do front-end com as novas informações
-	 * @return por padrão retorna o objeto recebido do front-end
+	 * @return Por padrão retorna o objeto recebido do front-end
 	 */
 	protected T updateData(T objDB, T obj) {
 		return obj;
