@@ -14,6 +14,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.icarodebarros.cursomc.services.exceptions.AuthorizationException;
 import com.icarodebarros.cursomc.services.exceptions.DataIntegrityException;
+import com.icarodebarros.cursomc.services.exceptions.FieldValidationException;
 import com.icarodebarros.cursomc.services.exceptions.FileException;
 import com.icarodebarros.cursomc.services.exceptions.ObjectNotFoundException;
 
@@ -44,12 +45,22 @@ public class ResourceExceptionHandler {
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(err);
 	}
 	
+	@ExceptionHandler(FieldValidationException.class)
+	public ResponseEntity<StandardError> validation(FieldValidationException e, HttpServletRequest request) {
+		ValidationError err = new ValidationError(System.currentTimeMillis(), HttpStatus.UNPROCESSABLE_ENTITY.value(), "Erro de validação", e.getMessage(), request.getRequestURI());
+		for(FieldMessage x: e.getErros()) {
+			err.addError(x.getFieldName(), x.getMessage());
+		}
+		
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(err);
+	}
+	
 	@ExceptionHandler(AuthorizationException.class)
 	public ResponseEntity<StandardError> authorization(AuthorizationException e, HttpServletRequest request) {
 		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.FORBIDDEN.value(), "Acesso negado", e.getMessage(), request.getRequestURI());
 		
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(err);
-	}
+	}	
 	
 	@ExceptionHandler(FileException.class)
 	public ResponseEntity<StandardError> file(FileException e, HttpServletRequest request) {
