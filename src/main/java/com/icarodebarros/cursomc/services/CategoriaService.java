@@ -49,9 +49,9 @@ public class CategoriaService extends GenericService<Categoria, Integer> {
 	}
 	
 	@Override
-	protected Categoria mapObjectToCategoria(Object[] obj) {
+	protected Categoria mapObjectToClass(Object[] obj) {
 		Categoria cat = new Categoria((Integer) obj[0], (String) obj[1]);
-		cat.setProdutos(null);
+		this.annulObjectLists(cat);
 		return cat;
 	}
 
