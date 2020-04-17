@@ -2,24 +2,26 @@ package com.icarodebarros.cursomc.services;
 
 import java.awt.image.BufferedImage;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.icarodebarros.cursomc.domain.Cidade;
 import com.icarodebarros.cursomc.domain.Cliente;
 import com.icarodebarros.cursomc.domain.Endereco;
 import com.icarodebarros.cursomc.domain.enums.Perfil;
-import com.icarodebarros.cursomc.domain.enums.TipoCliente;
-import com.icarodebarros.cursomc.dto.ClienteDTO;
-import com.icarodebarros.cursomc.dto.ClienteNewDTO;
 import com.icarodebarros.cursomc.repositories.ClienteRepository;
 import com.icarodebarros.cursomc.repositories.EnderecoRepository;
+import com.icarodebarros.cursomc.resources.exceptions.FieldMessage;
 import com.icarodebarros.cursomc.security.UserSS;
 import com.icarodebarros.cursomc.services.exceptions.AuthorizationException;
+import com.icarodebarros.cursomc.services.exceptions.FieldValidationException;
 import com.icarodebarros.cursomc.services.exceptions.ObjectNotFoundException;
 
 @Service
@@ -54,8 +56,10 @@ public class ClienteService extends GenericService<Cliente, Integer> {
 		if (user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
 			throw new AuthorizationException("Acesso Negado");
 		}
+		Cliente cli = super.find(id);
+		cli.setSenha(null);
 		
-		return super.find(id);
+		return cli;
 	}
 		
 	@Override
@@ -81,27 +85,35 @@ public class ClienteService extends GenericService<Cliente, Integer> {
 		return obj;
 	}
 	
-	public Cliente fromDTO(ClienteDTO objDto) {
-		return new Cliente(objDto.getId(), objDto.getNome(), objDto.getEmail(), null, null, null);
+	@Override
+	protected void validateInsert(Cliente obj) {
+		super.validateInsert(obj);
+		List<FieldMessage> erros = new ArrayList<>();
+		if (obj.getSenha() == null) {
+			erros.add(new FieldMessage("senha", "Preenchimento obrigatório"));
+		}
+		if (obj.getEnderecos() == null || obj.getEnderecos().size() == 0) {
+			erros.add(new FieldMessage("enderecos", "Preenchimento obrigatório"));
+		}
+		if (obj.getTelefones() == null || obj.getTelefones().isEmpty()) {
+			erros.add(new FieldMessage("telefones", "Preenchimento obrigatório"));
+		}
+		if (!erros.isEmpty()) {
+			throw new FieldValidationException("Campo(s) obrigatório(s) está(ão) nulo ou contém lista(s) vazia(s)", erros);			
+		}
 	}
 	
-	public Cliente fromDTO(ClienteNewDTO objDto) {
-		Cliente cli = new Cliente(null, objDto.getNome(), objDto.getEmail(), objDto.getCpfOuCnpj(), 
-				TipoCliente.toEnum(objDto.getTipo()), pe.encode(objDto.getSenha()));
-		Cidade cid = new Cidade(objDto.getCidadeId(), null, null);
-		Endereco end = new Endereco(null, objDto.getLogradouro(), objDto.getNumero(), objDto.getComplemento(), objDto.getBairro(),
-				objDto.getCep(), cli, cid);
-		cli.getEnderecos().add(end);
-		cli.getTelefones().add(objDto.getTelefone1());
-		if (objDto.getTelefone2() != null) {
-			cli.getTelefones().add(objDto.getTelefone2());			
+	@Override
+	protected void preDependencies(Cliente obj) {
+		super.preDependencies(obj);
+		if (obj.getId() == null) { // Insersção...			
+			obj.setSenha(pe.encode(obj.getSenha()));
+			for (Endereco e: obj.getEnderecos()) {
+				e.setCliente(obj);
+			}
 		}
-		if (objDto.getTelefone3() != null) {
-			cli.getTelefones().add(objDto.getTelefone3());			
-		}
-		return cli;
 	}
-
+	
 	@Override
 	protected Cliente updateData(Cliente objDB, Cliente obj) {
 		objDB.setNome(obj.getNome());
@@ -109,6 +121,33 @@ public class ClienteService extends GenericService<Cliente, Integer> {
 		return objDB;
 	}
 	
+	@Override
+	public List<Cliente> findAll() {
+		return super.shortFindAll();
+	}
+	
+	@Override
+	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+		return super.shortFindPage(page, linesPerPage, orderBy, direction);
+	}
+	
+	@Override
+	protected List<Object[]> repositoryShortFindAll() {
+		return this.getRepository().shortFindAll();
+	}
+	
+	@Override
+	protected Page<Object[]> repositoryShortFindAll(PageRequest pageRequest) {
+		return this.getRepository().shortFindAll(pageRequest);
+	}
+	
+	@Override
+	protected Cliente mapObjectToClass(Object[] obj) {
+		Cliente cli = new Cliente((Integer) obj[0], (String) obj[1], (String) obj[2]);
+		this.annulObjectLists(cli);		
+		return cli;
+	}
+		
 	public URI uploadProfilePicture(MultipartFile multipartFile) {
 		UserSS user = UserService.authenticated();
 		if (user == null) {

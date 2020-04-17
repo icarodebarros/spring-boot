@@ -7,9 +7,13 @@ import javax.validation.constraints.NotEmpty;
 
 import org.hibernate.validator.constraints.Length;
 
-import com.icarodebarros.cursomc.services.validation.ClienteInsert;
+//import com.icarodebarros.cursomc.services.validation.ClienteInsert;
 
-@ClienteInsert // Anotação customizada de validação!
+/**
+ * Classe descontinuada. Tanto insersão quando update direto pela classe Cliente. ClienteNewDTO e ClienteDTO estão mantidos para eventual consulta.
+ * */
+
+//@ClienteInsert // Anotação customizada de validação!
 public class ClienteNewDTO implements Serializable {
 	
 	private static final long serialVersionUID = 1L;

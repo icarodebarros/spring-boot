@@ -3,6 +3,7 @@ package com.icarodebarros.cursomc.domain;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -10,11 +11,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Endereco extends Pojo<Integer> {
 	
 	private static final long serialVersionUID = 1L;
-		
+	
+	@NotEmpty(message = "Preenchimento obrigatório")
 	private String logradouro;
+	
+	@NotEmpty(message = "Preenchimento obrigatório")
 	private String numero;
 	private String complemento;
 	private String bairro;
+	
+	@NotEmpty(message = "Preenchimento obrigatório")
 	private String cep;
 	
 	@JsonIgnore // @JsonBackReference

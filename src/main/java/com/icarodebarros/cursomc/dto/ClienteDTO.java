@@ -8,9 +8,13 @@ import javax.validation.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Length;
 
 import com.icarodebarros.cursomc.domain.Cliente;
-import com.icarodebarros.cursomc.services.validation.ClienteUpdate;
+//import com.icarodebarros.cursomc.services.validation.ClienteUpdate;
 
-@ClienteUpdate
+/**
+ * Classe descontinuada. Tanto insersão quando update direto pela classe Cliente. ClienteNewDTO e ClienteDTO estão mantidos para eventual consulta.
+ * */
+
+//@ClienteUpdate
 public class ClienteDTO implements Serializable {
 	
 	private static final long serialVersionUID = 1L;

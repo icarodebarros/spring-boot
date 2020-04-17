@@ -13,24 +13,39 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+
+import org.hibernate.validator.constraints.Length;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.icarodebarros.cursomc.domain.enums.Perfil;
 import com.icarodebarros.cursomc.domain.enums.TipoCliente;
+import com.icarodebarros.cursomc.services.validation.ClienteInsert;
+import com.icarodebarros.cursomc.services.validation.ClienteUpdate;
 
+@ClienteInsert
+@ClienteUpdate
 @Entity
 public class Cliente extends Pojo<Integer> {
 	
 	private static final long serialVersionUID = 1L;
 	
+	@NotEmpty(message = "Preenchimento obrigatório")
+	@Length(min = 5, max = 120, message = "O tamanho deve ser entre 5 e 120 caracteres")
 	private String nome;
 	
+	@NotEmpty(message = "Preenchimento obrigatório")
+	@Email(message = "Email inválido")
 	@Column(unique = true)
 	private String email;
+	
+	// Existem anotações @CPF e @CNPJ do hibernate.validator usadas para validação dessas variáveis específicas
+//	@NotEmpty(message = "Preenchimento obrigatório") // Validação transferida para ClientInsertValidator para não gerar erro no fluxo de update.
 	private String cpfOuCnpj;
 	private Integer tipo;
 	
-	@JsonIgnore
+//	@JsonIgnore // Retirado pois na inserção de Cliente não se deve ignorar a senha. Alteração feira apos remoção do ClienteNewDTO.
 	private String senha;
 
 	//	@JsonManagedReference
@@ -52,6 +67,13 @@ public class Cliente extends Pojo<Integer> {
 	public Cliente() {
 		super();
 		addPerfil(Perfil.CLIENTE);
+	}
+	
+	// Construtor do mapObjectToClass
+	public Cliente(Integer id, String nome, String email) {
+		super(id);
+		this.nome = nome;
+		this.email = email;
 	}
 
 	public Cliente(Integer id, String nome, String email, String cpfOuCnpj, TipoCliente tipo, String senha) {
@@ -87,13 +109,21 @@ public class Cliente extends Pojo<Integer> {
 	public void setCpfOuCnpj(String cpfOuCnpj) {
 		this.cpfOuCnpj = cpfOuCnpj;
 	}
-
-	public TipoCliente getTipo() {
-		return TipoCliente.toEnum(tipo);
+	// * Get do tipo ENUM *
+	public TipoCliente getTipo() { // Mostra ao front a String de descrição (Passível de mudança)
+		return TipoCliente.toEnum(this.tipo);
 	}
-
-	public void setTipo(TipoCliente tipo) {
-		this.tipo = tipo.getCod();
+	// * Set do tipo ENUM *
+//	public void setTipo(TipoCliente tipo) {
+//		this.tipo = tipo.getCod();
+//	}
+	// * Get do tipo Primitivo (Integer) *	
+//	public Integer getTipo() {
+//		return tipo;
+//	}
+	// * Get do tipo Primitivo (Integer) *
+	public void setTipo(Integer tipo) { // Recebe do front o Integer (Passível de mudança)
+		this.tipo = tipo;
 	}
 	
 	public String getSenha() {
@@ -105,7 +135,11 @@ public class Cliente extends Pojo<Integer> {
 	}
 	
 	public Set<Perfil> getPerfis() {
-		return this.perfis.stream().map(perfil -> Perfil.toEnum(perfil)).collect(Collectors.toSet());
+		return this.perfis != null ? this.perfis.stream().map(perfil -> Perfil.toEnum(perfil)).collect(Collectors.toSet()) : null;
+	}
+	
+	public void setPerfis(Set<Integer> perfis) {
+		this.perfis = perfis;
 	}
 	
 	public void addPerfil(Perfil perfil) {
