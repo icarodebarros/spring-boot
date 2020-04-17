@@ -1,9 +1,13 @@
 package com.icarodebarros.cursomc.services;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,7 +133,7 @@ public abstract class GenericService<T extends Pojo<ID>, ID extends Serializable
 		if (rawResult == null) {
 			throw new NullPointerException("Necessária a implementação do método repositoryShortFindAll() no Service!");
 		}
-		List<T> objects = rawResult.stream().map(obj -> this.mapObjectToCategoria(obj)).collect(Collectors.toList());		
+		List<T> objects = rawResult.stream().map(obj -> this.mapObjectToClass(obj)).collect(Collectors.toList());		
 		return objects;
 	}
 	
@@ -144,7 +148,7 @@ public abstract class GenericService<T extends Pojo<ID>, ID extends Serializable
 		if (rawResult == null) {
 			throw new NullPointerException("Necessária a implementação do método repositoryShortFindAll(PageRequest pageRequest) no Service!");
 		}
-		Page<T> objects = rawResult.map(obj -> this.mapObjectToCategoria(obj));		
+		Page<T> objects = rawResult.map(obj -> this.mapObjectToClass(obj));		
 		return objects;
 	}
 	
@@ -168,8 +172,42 @@ public abstract class GenericService<T extends Pojo<ID>, ID extends Serializable
 	 * Método auxiliar que deve ser sobrescrito sempre que for necessário usar o shortFindAll() ou o shortFindPage(...) do Service.
 	 * @return Deve retorna o objeto da Classe T criado a partir dos resultados das querys SQL de busca resumida.
 	 */	
-	protected T mapObjectToCategoria(Object[] obj) {
+	protected T mapObjectToClass(Object[] obj) {
 		return null;
+	}
+	
+	/**
+	 * Método auxiliar que percorre um Objeto T e coloca valor null nos atributos do tipo List ou Set que estejam vazios.
+	 * Deve ser usado dentro do método mapObjectToClass(...) para que as buscas resumidas (que não carregam os valores de suas listas)
+	 * tenham essas propriedades do tipo coleção anuladas, deixando claro que essas propriedades não foram trazidas, e não que são vazias.
+	 * @param obj Objeto a ter suas listas vazias anuladas.
+	 */
+	protected void annulObjectLists(T obj) {
+		Field fields[] = this.entityClass.getDeclaredFields();
+		for (int i = 0; i < fields.length; i++) {
+			fields[i].setAccessible(true);
+			
+			try {
+				Boolean isEmpty = false;
+				if (fields[i].getType() == List.class) { // Verifica atributos do tipo List vazios
+					ArrayList<?> lst = ((ArrayList<?>) fields[i].get(obj));
+					isEmpty = (lst != null && lst.size() == 0);
+				
+				} else if (fields[i].getType() == Set.class) { // Verifica atributos do tipo Set vazios
+					HashSet<?> st = ((HashSet<?>) fields[i].get(obj));
+					isEmpty = (st != null && st.size() == 0);
+				}
+
+				if (isEmpty) { // Coloca null nas coleções vazias
+					fields[i].set(obj, null);
+				}
+				
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	/**
