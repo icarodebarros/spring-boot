@@ -19,6 +19,11 @@ public class Cidade extends Pojo<Integer> {
 	public Cidade() {
 		super();
 	}
+	
+	public Cidade(Integer id, String nome) {
+		super(id);
+		this.nome = nome;
+	}
 
 	public Cidade(Integer id, String nome, Estado estado) {
 		super(id);
