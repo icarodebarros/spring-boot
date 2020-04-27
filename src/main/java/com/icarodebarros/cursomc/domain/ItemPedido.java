@@ -1,5 +1,6 @@
 package com.icarodebarros.cursomc.domain;
 
+import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -9,7 +10,7 @@ import javax.persistence.Entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class ItemPedido extends Pojo<ItemPedidoPK> {
+public class ItemPedido implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -21,9 +22,7 @@ public class ItemPedido extends Pojo<ItemPedidoPK> {
 	private Integer quantidade;
 	private Double preco;
 	
-	public ItemPedido() {
-		super();
-	}
+	public ItemPedido() { }
 
 	public ItemPedido(Pedido pedido, Produto produto, Double desconto, Integer quantidade, Double preco) {
 		super();
@@ -55,6 +54,14 @@ public class ItemPedido extends Pojo<ItemPedidoPK> {
 		this.id.setProduto(produto);
 	}
 
+	public ItemPedidoPK getId() {
+		return id;
+	}
+
+	public void setId(ItemPedidoPK id) {
+		this.id = id;
+	}
+
 	public Double getDesconto() {
 		return desconto;
 	}
@@ -80,6 +87,31 @@ public class ItemPedido extends Pojo<ItemPedidoPK> {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ItemPedido other = (ItemPedido) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 		StringBuilder builder = new StringBuilder();
@@ -93,6 +125,6 @@ public class ItemPedido extends Pojo<ItemPedidoPK> {
 		builder.append("\n");
 		
 		return builder.toString();
-	}
+	}	
 
 }
