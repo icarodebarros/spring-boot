@@ -40,6 +40,7 @@ public class CategoriaResource extends GenericResource<Categoria, Integer> {
 		return super.update(obj, id);
 	}
 	
+	@Override
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@RequestMapping(value="/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> delete(@PathVariable Integer id) {

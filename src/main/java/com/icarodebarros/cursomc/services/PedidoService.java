@@ -46,6 +46,13 @@ public class PedidoService extends GenericService<Pedido, Integer> {
 	}
 	
 	@Override
+	public Pedido find(Integer id) {
+		Pedido ped = super.find(id);
+		ped.getCliente().setSenha(null);
+		return ped;
+	}
+	
+	@Override
 	protected void preDependencies(Pedido obj) {
 		if (obj.getId() == null) {
 			obj.setInstante(new Date());

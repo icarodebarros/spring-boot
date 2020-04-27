@@ -35,18 +35,21 @@ public class ClienteResource extends GenericResource<Cliente, Integer> {
 		return ResponseEntity.ok().body(obj);
 	}
 	
+	@Override
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@RequestMapping(value="/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> delete(@PathVariable Integer id) {
 		return super.delete(id);
 	}
 	
+	@Override
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<Cliente>> findAll() {
 		return super.findAll();
 	}
 	
+	@Override
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@RequestMapping(value="/page", method = RequestMethod.GET)
 	public ResponseEntity<Page<Cliente>> findPage(
