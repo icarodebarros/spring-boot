@@ -1,36 +1,64 @@
  package com.icarodebarros.cursomc.resources;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.icarodebarros.cursomc.domain.Produto;
-import com.icarodebarros.cursomc.dto.ProdutoDTO;
 import com.icarodebarros.cursomc.resources.utils.URL;
 import com.icarodebarros.cursomc.services.ProdutoService;
 
 @RestController
 @RequestMapping(value = "/produtos")
-public class ProdutoResource {
+public class ProdutoResource extends GenericResource<Produto, Integer> {
 	
 	@Autowired
 	private ProdutoService service;
+	
+	@Override
+	public ProdutoService getService() {
+		return (ProdutoService) this.service;
+	}
 
-	@RequestMapping(value="/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Produto> find(@PathVariable Integer id) {
-		Produto obj = this.service.find(id);
-		return ResponseEntity.ok().body(obj);
+	@Override
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	public ResponseEntity<Void> insert(@Valid Produto obj) {
+		// TODO Auto-generated method stub
+		return super.insert(obj);
 	}
 	
-	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<Page<ProdutoDTO>> findPage(
+	@Override
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	public ResponseEntity<Void> update(@Valid Produto obj, Integer id) {
+		// TODO Auto-generated method stub
+		return super.update(obj, id);
+	}
+	
+	@Override
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	public ResponseEntity<Void> delete(Integer id) {
+		// TODO Auto-generated method stub
+		return super.delete(id);
+	}
+	
+	@Override
+	public ResponseEntity<List<Produto>> findAll() {
+		// Método com acesso bloqueado
+		return ResponseEntity.notFound().build();
+	}
+	
+	@RequestMapping(value="/search", method = RequestMethod.GET)
+	public ResponseEntity<Page<Produto>> search(
 			@RequestParam(value="nome", defaultValue = "") String nome,
 			@RequestParam(value="categorias", defaultValue = "") String categorias,
 		 	@RequestParam(value="page", defaultValue = "0") Integer page,
@@ -38,10 +66,12 @@ public class ProdutoResource {
 		 	@RequestParam(value="orderBy", defaultValue = "nome") String orderBy,
 		 	@RequestParam(value="direction", defaultValue = "ASC") String direction) {
 		String nomeDecoded = URL.decodePram(nome);
-		List<Integer> ids = URL.decodeIntList(categorias);
+		List<Integer> ids = new ArrayList<Integer>();
+		try {
+			ids = URL.decodeIntList(categorias);			
+		} catch (Exception e) {}
 		Page<Produto> list = this.service.search(nomeDecoded, ids, page, linesPerPage, orderBy, direction);
-		Page<ProdutoDTO> listDto = list.map(obj -> new ProdutoDTO(obj));
-		return ResponseEntity.ok().body(listDto);
+		return ResponseEntity.ok().body(list);
 	}
 
 }

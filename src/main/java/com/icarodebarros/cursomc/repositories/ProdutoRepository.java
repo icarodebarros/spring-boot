@@ -21,6 +21,12 @@ public interface ProdutoRepository extends GenericRepository<Produto, Integer> {
 			+ "WHERE obj.nome LIKE %:nome% AND cat IN :categorias")
 	Page<Produto> search(@Param("nome") String nome, @Param("categorias") List<Categoria> categorias, Pageable pageRequest);
 	
+	@Transactional(readOnly = true)
+	@Query("SELECT DISTINCT obj.id, obj.nome, obj.preco FROM Produto obj "
+			+ "INNER JOIN obj.categorias cat "
+			+ "WHERE obj.nome LIKE %:nome% AND cat IN :categorias")
+	Page<Object[]> shortSearch(@Param("nome") String nome, @Param("categorias") List<Categoria> categorias, Pageable pageRequest);
+	
 	// Ver docs do Spring Data JPA (query methods)
 	// Esse método é equivalente ao search acima, apenas usando as palavras reservadas do JPA
 //	@Transactional(readOnly = true)

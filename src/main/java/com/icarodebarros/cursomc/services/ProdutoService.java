@@ -1,5 +1,6 @@
 package com.icarodebarros.cursomc.services;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,23 @@ public class ProdutoService extends GenericService<Produto, Integer> {
 	public Page<Produto> search(String nome, List<Integer> ids, Integer page, Integer linesPerPage, String orderBy,
 			String direction) {
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
-		List<Categoria> categorias = categoriaRepository.findAllById(ids);
-		return getRepository().search(nome, categorias, pageRequest);
+		List<Categoria> categorias = new ArrayList<Categoria>();
+		if (ids.size() == 0) {
+			categorias = categoriaRepository.findAll();	
+		} else {
+			categorias = categoriaRepository.findAllById(ids);			
+		}
+//		return getRepository().search(nome, categorias, pageRequest);
+		Page<Object[]> rawResult = getRepository().shortSearch(nome, categorias, pageRequest);
+		Page<Produto> produtos = rawResult.map(obj -> this.mapObjectToClass(obj));		
+		return produtos;
+	}
+	
+	@Override
+	protected Produto mapObjectToClass(Object[] obj) {
+		Produto prod = new Produto((Integer) obj[0], (String) obj[1], (Double) obj[2]);
+		this.annulObjectLists(prod);		
+		return prod;
 	}
 
 }
