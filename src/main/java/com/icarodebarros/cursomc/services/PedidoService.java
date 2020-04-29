@@ -88,6 +88,7 @@ public class PedidoService extends GenericService<Pedido, Integer> {
 		}
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		Cliente cliente = clienteService.find(user.getId());
+		cliente.setSenha(null);
 		
 		return getRepository().findByCliente(cliente, pageRequest);
 	}

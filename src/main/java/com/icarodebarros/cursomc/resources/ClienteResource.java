@@ -36,6 +36,14 @@ public class ClienteResource extends GenericResource<Cliente, Integer> {
 	}
 	
 	@Override
+	@RequestMapping(value="/{id}", method = RequestMethod.GET)
+	public ResponseEntity<Cliente> find(@PathVariable Integer id) {
+		Cliente obj = this.getService().find(id);
+		obj.setSenha(null);
+		return ResponseEntity.ok().body(obj);
+	}
+	
+	@Override
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@RequestMapping(value="/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> delete(@PathVariable Integer id) {

@@ -56,10 +56,8 @@ public class ClienteService extends GenericService<Cliente, Integer> {
 		if (user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
 			throw new AuthorizationException("Acesso Negado");
 		}
-		Cliente cli = super.find(id);
-		cli.setSenha(null);
 		
-		return cli;
+		return super.find(id);
 	}
 		
 	@Override
@@ -82,6 +80,8 @@ public class ClienteService extends GenericService<Cliente, Integer> {
 		if (obj == null) {
 			throw new ObjectNotFoundException("Objeto não encontrado! Id: " + user.getId() + ", Tipo: " + Cliente.class.getName());
 		}
+		obj.setSenha(null);
+		
 		return obj;
 	}
 	
