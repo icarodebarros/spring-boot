@@ -1,5 +1,6 @@
 package com.icarodebarros.cursomc.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -11,6 +12,7 @@ public class PagamentoComCartao extends Pagamento {
 	
 	private static final long serialVersionUID = 1L;
 
+	@Column(nullable = false)
 	private Integer numeroDeParcelas;
 	
 	public PagamentoComCartao() {

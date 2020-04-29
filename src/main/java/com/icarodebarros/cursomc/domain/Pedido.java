@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -20,7 +21,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class Pedido extends Pojo<Integer> {
 	
 	private static final long serialVersionUID = 1L;
-		
+	
+	@Column(nullable = false)
 	@JsonFormat(pattern="dd/MM/yyyy HH:mm")
 	private Date instante;
 	
@@ -30,11 +32,11 @@ public class Pedido extends Pojo<Integer> {
 	
 //	@JsonManagedReference
 	@ManyToOne
-	@JoinColumn(name = "cliente_id")
+	@JoinColumn(name = "cliente_id", nullable = false)
 	private Cliente cliente;
 	
 	@ManyToOne
-	@JoinColumn(name = "endereco_de_entrega_id")
+	@JoinColumn(name = "endereco_de_entrega_id", nullable = false)
 	private Endereco enderecoDeEntrega;	
 	
 	@OneToMany(mappedBy = "id.pedido")

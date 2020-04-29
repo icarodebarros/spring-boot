@@ -1,19 +1,26 @@
 package com.icarodebarros.cursomc.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotEmpty;
+
+import org.hibernate.validator.constraints.Length;
 
 @Entity
 public class Cidade extends Pojo<Integer> {
 	
 	private static final long serialVersionUID = 1L;
-		
+	
+	@NotEmpty(message = "Preenchimento obrigatório")
+	@Length(min = 3, max = 50, message = "O tamanho deve ser entre 3 e 50 caracteres")
+	@Column(nullable = false, length = 50)
 	private String nome;
 	
 //	@JsonManagedReference
 	@ManyToOne
-	@JoinColumn(name = "estado_id")
+	@JoinColumn(name = "estado_id", nullable = false)
 	private Estado estado;
 	
 	public Cidade() {

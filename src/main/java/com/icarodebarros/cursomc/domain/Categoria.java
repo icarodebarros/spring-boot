@@ -3,6 +3,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotEmpty;
@@ -17,6 +18,7 @@ public class Categoria extends Pojo<Integer> {
 	
 	@NotEmpty(message = "Preenchimento obrigatório")
 	@Length(min = 5, max = 80, message = "O tamanho deve ser entre 5 e 80 caracteres")
+	@Column(nullable = false, length = 80)
 	private String nome;
 	
 //	@JsonManagedReference

@@ -1,5 +1,6 @@
 package com.icarodebarros.cursomc.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -17,12 +18,13 @@ import com.icarodebarros.cursomc.domain.enums.EstadoPagamento;
 public abstract class Pagamento extends Pojo<Integer> {
 	
 	private static final long serialVersionUID = 1L;
-		
+	
+	@Column(nullable = false)
 	private Integer estado;
 	
 	@JsonIgnore // @JsonBackReference
 	@OneToOne
-	@JoinColumn(name = "pedido_id")
+	@JoinColumn(name = "pedido_id", nullable = false)
 	@MapsId
 	private Pedido pedido;
 	

@@ -5,11 +5,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotEmpty;
+
+import org.hibernate.validator.constraints.Length;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -18,14 +22,19 @@ public class Produto extends Pojo<Integer> {
 	
 	private static final long serialVersionUID = 1L;
 	
+	@NotEmpty(message = "Preenchimento obrigatório")
+	@Length(min = 5, max = 120, message = "O tamanho deve ser entre 5 e 120 caracteres")
+	@Column(nullable = false)
 	private String nome;
+	
+	@Column(nullable = false)
 	private Double preco;
 	
 	@JsonIgnore // @JsonBackReference
 	@ManyToMany
 	@JoinTable(name = "PRODUTO_CATEGORIA",
-		joinColumns = @JoinColumn(name = "produto_id"),
-		inverseJoinColumns = @JoinColumn(name = "categoria_id")
+		joinColumns = @JoinColumn(name = "produto_id", nullable = false),
+		inverseJoinColumns = @JoinColumn(name = "categoria_id", nullable = false)
 	)
 	private List<Categoria> categorias = new ArrayList<>();
 	

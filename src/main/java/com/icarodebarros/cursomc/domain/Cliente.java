@@ -33,19 +33,24 @@ public class Cliente extends Pojo<Integer> {
 	
 	@NotEmpty(message = "Preenchimento obrigatório")
 	@Length(min = 5, max = 120, message = "O tamanho deve ser entre 5 e 120 caracteres")
+	@Column(nullable = false)
 	private String nome;
 	
 	@NotEmpty(message = "Preenchimento obrigatório")
 	@Email(message = "Email inválido")
-	@Column(unique = true)
+	@Column(nullable = true, unique = true)
 	private String email;
 	
 	// Existem anotações @CPF e @CNPJ do hibernate.validator usadas para validação dessas variáveis específicas
 //	@NotEmpty(message = "Preenchimento obrigatório") // Validação transferida para ClientInsertValidator para não gerar erro no fluxo de update.
+	@Column(nullable = false)
 	private String cpfOuCnpj;
+	
+	@Column(nullable = false)
 	private Integer tipo;
 	
 //	@JsonIgnore // Retirado pois na inserção de Cliente não se deve ignorar a senha. Alteração feira apos remoção do ClienteNewDTO.
+	@Column(nullable = false)
 	private String senha;
 
 	//	@JsonManagedReference

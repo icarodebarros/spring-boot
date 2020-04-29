@@ -3,8 +3,11 @@ package com.icarodebarros.cursomc.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+
+import org.hibernate.validator.constraints.Length;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -12,7 +15,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Estado extends Pojo<Integer> {
 	
 	private static final long serialVersionUID = 1L;
-		
+	
+	@Length(min = 4, max = 30, message = "O tamanho deve ser entre 4 e 30 caracteres")
+	@Column(nullable = false)
 	private String nome;
 	
 	@JsonIgnore // @JsonBackReference

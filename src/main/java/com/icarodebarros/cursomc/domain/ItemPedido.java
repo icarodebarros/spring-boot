@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
@@ -18,8 +19,13 @@ public class ItemPedido implements Serializable {
 	@EmbeddedId
 	private ItemPedidoPK id = new ItemPedidoPK();
 	
+	@Column(nullable = false)
 	private Double desconto;
+	
+	@Column(nullable = false)
 	private Integer quantidade;
+	
+	@Column(nullable = false)
 	private Double preco;
 	
 	public ItemPedido() { }
