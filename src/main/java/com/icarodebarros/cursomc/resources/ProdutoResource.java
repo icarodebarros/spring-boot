@@ -18,6 +18,8 @@ import com.icarodebarros.cursomc.domain.Produto;
 import com.icarodebarros.cursomc.resources.utils.URL;
 import com.icarodebarros.cursomc.services.ProdutoService;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping(value = "/produtos")
 public class ProdutoResource extends GenericResource<Produto, Integer> {
@@ -57,6 +59,7 @@ public class ProdutoResource extends GenericResource<Produto, Integer> {
 		return ResponseEntity.notFound().build();
 	}
 	
+	@ApiOperation(value="Busca customizada de produtos com paginação")
 	@RequestMapping(value="/search", method = RequestMethod.GET)
 	public ResponseEntity<Page<Produto>> search(
 			@RequestParam(value="nome", defaultValue = "") String nome,
