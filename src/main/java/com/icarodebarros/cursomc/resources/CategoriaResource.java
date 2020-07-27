@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.icarodebarros.cursomc.domain.Categoria;
 import com.icarodebarros.cursomc.services.CategoriaService;
 
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @RestController
 @RequestMapping(value = "/categorias")
 public class CategoriaResource extends GenericResource<Categoria, Integer> {
@@ -41,6 +44,9 @@ public class CategoriaResource extends GenericResource<Categoria, Integer> {
 	}
 	
 	@Override
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Não é possível excluir uma categoria que possui produtos"),
+			@ApiResponse(code = 404, message = "Código inexistente") })
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@RequestMapping(value="/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> delete(@PathVariable Integer id) {
