@@ -18,6 +18,8 @@ import com.icarodebarros.cursomc.domain.Estado;
 import com.icarodebarros.cursomc.services.CidadeService;
 import com.icarodebarros.cursomc.services.EstadoService;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping(value = "/estados")
 public class EstadoResource extends GenericResource<Estado, Integer> {
@@ -53,7 +55,8 @@ public class EstadoResource extends GenericResource<Estado, Integer> {
 	public ResponseEntity<Void> delete(@PathVariable Integer id) {
 		return super.delete(id);
 	}
-		
+	
+	@ApiOperation(value="Retorna todas as cidades de um determinado estado")
 	@RequestMapping(value = "/{estadoId}/cidades", method = RequestMethod.GET)
 	public ResponseEntity<List<Cidade>> findCidades(@PathVariable Integer estadoId) {
 		List<Cidade> list = this.cidadeService.findByEstado(estadoId);

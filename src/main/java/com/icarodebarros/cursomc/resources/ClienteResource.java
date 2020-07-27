@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.icarodebarros.cursomc.domain.Cliente;
 import com.icarodebarros.cursomc.services.ClienteService;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping(value = "/clientes")
 public class ClienteResource extends GenericResource<Cliente, Integer> {
@@ -28,7 +30,8 @@ public class ClienteResource extends GenericResource<Cliente, Integer> {
 	public ClienteService getService() {
 		return (ClienteService) this.service;
 	}
-		
+	
+	@ApiOperation(value="Busca por e-mail")
 	@RequestMapping(value="/email", method = RequestMethod.GET)
 	public ResponseEntity<Cliente> find(@RequestParam(value = "value") String email) {
 		Cliente obj = this.service.findByEmail(email);
@@ -68,6 +71,7 @@ public class ClienteResource extends GenericResource<Cliente, Integer> {
 		return super.findPage(page, linesPerPage, orderBy, direction);
 	}
 	
+	@ApiOperation(value="Insere imagem de perfil do cliente")
 	@RequestMapping(value = "/picture", method = RequestMethod.POST)
 	public ResponseEntity<Void> uploadProfilePicture(@RequestParam(name = "file") MultipartFile file) {
 		URI uri = service.uploadProfilePicture(file);		
