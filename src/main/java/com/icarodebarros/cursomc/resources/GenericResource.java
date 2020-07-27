@@ -18,6 +18,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.icarodebarros.cursomc.domain.Pojo;
 import com.icarodebarros.cursomc.services.GenericService;
 
+import io.swagger.annotations.ApiOperation;
+
 public abstract class GenericResource<T extends Pojo<ID>, ID extends Serializable> {
 		
 	public abstract GenericService<T, ID> getService();
@@ -27,6 +29,7 @@ public abstract class GenericResource<T extends Pojo<ID>, ID extends Serializabl
 	 * @param id
 	 * @return Objeto com id correspondente
 	 */
+	@ApiOperation(value="Busca por id")
 	@RequestMapping(value="/{id}", method = RequestMethod.GET)
 	public ResponseEntity<T> find(@PathVariable ID id) {
 		T obj = this.getService().find(id);
@@ -38,6 +41,7 @@ public abstract class GenericResource<T extends Pojo<ID>, ID extends Serializabl
 	 * @param obj Objeto a ser inserido
 	 * @return Retorna a URI de acesso ao novo objeto recém inserido
 	 */
+	@ApiOperation(value="Insere objeto")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<Void> insert(@Valid @RequestBody T obj) {
 		obj = getService().insert(obj);
@@ -52,6 +56,7 @@ public abstract class GenericResource<T extends Pojo<ID>, ID extends Serializabl
 	 * @param id Id do objeto a ser atualizado
 	 * @return Não há retorno
 	 */
+	@ApiOperation(value="Atualiza objeto")
 	@RequestMapping(value="/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<Void> update(@Valid @RequestBody T obj, @PathVariable ID id) {
 		obj.setId(id);
@@ -64,6 +69,7 @@ public abstract class GenericResource<T extends Pojo<ID>, ID extends Serializabl
 	 * @param id Id do objeto a ser apagado
 	 * @return Não há retorno
 	 */
+	@ApiOperation(value="Remove objeto")
 	@RequestMapping(value="/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> delete(@PathVariable ID id) {
 		this.getService().delete(id);
@@ -74,6 +80,7 @@ public abstract class GenericResource<T extends Pojo<ID>, ID extends Serializabl
 	 * Endpoint de listagem de todos os objetos da classe.
 	 * @return Lista dos objetos da classe
 	 */
+	@ApiOperation(value="Retorna todos os objetos")
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<T>> findAll() {
 		List<T> list = this.getService().findAll();
@@ -88,6 +95,7 @@ public abstract class GenericResource<T extends Pojo<ID>, ID extends Serializabl
 	 * @param direction Ordenação da busca (crescente ou decrescente)
 	 * @return Lista de itens limitada pela paginação
 	 */
+	@ApiOperation(value="Retorna todos os objetos com paginação")
 	@RequestMapping(value="/page", method = RequestMethod.GET)
 	public ResponseEntity<Page<T>> findPage(
 		 	@RequestParam(value="page", defaultValue = "0") Integer page,
